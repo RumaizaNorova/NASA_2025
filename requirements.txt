@@ -1,0 +1,92 @@
+# Comprehensive Requirements for Shark Habitat Prediction Pipeline
+# This file includes all dependencies for both basic and AI-enhanced functionality
+
+# Core Scientific Computing
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+scikit-image>=0.19.0
+
+# Data Processing and Storage
+xarray>=0.20.0
+netCDF4>=1.6.0
+rioxarray>=0.8.0
+rasterio>=1.3.0
+xesmf>=0.6.0
+zarr>=2.12.0
+lz4>=4.0.0
+
+# Geographic and Spatial Processing
+shapely>=1.8.0
+geopy>=2.2.0
+pyproj>=3.3.0
+folium>=0.13.0
+
+# Machine Learning Core
+xgboost>=1.6.0
+lightgbm>=3.3.0
+shap>=0.41.0
+
+# AI and Optimization (Optional - install with pip install -r requirements.txt[ai])
+# Uncomment these lines for AI-enhanced functionality:
+# openai>=1.0.0
+# optuna>=3.0.0
+# imbalanced-learn>=0.9.0
+# scikit-optimize>=0.9.0
+# hyperopt>=0.2.7
+# bayesian-optimization>=1.4.0
+# lime>=0.2.0
+# eli5>=0.13.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.0.0
+pillow>=8.3.0
+
+# Web and Interactive
+mapboxgl>=0.19.0
+ipywidgets>=7.6.0
+dash>=2.0.0
+dash-bootstrap-components>=1.0.0
+bokeh>=2.4.0
+
+# Data Access and APIs
+requests>=2.25.0
+aiohttp>=3.8.0
+earthaccess>=0.10.0
+
+# Parallel Processing
+dask>=2022.0.0
+
+# Configuration and Utilities
+python-dotenv>=0.19.0
+pyyaml>=6.0
+click>=8.0.0
+tqdm>=4.64.0
+joblib>=1.1.0
+
+# Development and Testing
+pytest>=7.0.0
+pytest-cov>=3.0.0
+black>=22.0.0
+flake8>=4.0.0
+
+# Jupyter Environment
+notebook>=6.4.0
+jupyterlab>=3.4.0
+
+# Monitoring and Performance
+psutil>=5.9.0
+memory-profiler>=0.60.0
+
+# Optional GPU support (uncomment if needed)
+# torch>=1.12.0
+# torchvision>=0.13.0
+# tensorflow>=2.10.0
+
+# Optional Cloud deployment (uncomment if needed)
+# google-cloud-storage>=2.0.0
+# google-cloud-secret-manager>=2.0.0
+# kubernetes>=24.0.0

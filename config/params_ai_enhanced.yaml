@@ -1,43 +1,55 @@
 # AI-Enhanced Configuration for Shark Habitat Prediction
-# This configuration includes advanced ML techniques, AI analysis, and optimization
+# This configuration extends the base params.yaml with advanced ML techniques, AI analysis, and optimization
 
-# Model configuration
+# Import base configuration (inherits from params.yaml)
+# Base configuration includes: roi, time, species, gridding, features, model basics
+
+# Enhanced model configuration (extends base model config)
 model:
-  algorithms: ['xgboost', 'lightgbm', 'random_forest']  # Algorithms to train
+  # Inherit algorithms from base config and add AI enhancements
+  algorithms: ["xgboost", "random_forest", "lightgbm"]  # From base config
+  
+  # AI Enhancement settings
   optimization:
     enable_optuna: true
     n_trials: 100
     timeout: 3600  # seconds
   
-  # Algorithm-specific parameters (will be overridden by optimization)
+  # Algorithm-specific parameters (extends base config with optimization)
   xgboost:
-    n_estimators: 500
-    max_depth: 6
-    learning_rate: 0.05
-    subsample: 0.8
-    colsample_bytree: 0.8
-    reg_alpha: 0.1
-    reg_lambda: 1.0
-    scale_pos_weight: 'auto'  # Will be calculated based on class imbalance
+    # Inherit from base: n_estimators: 2000, max_depth: 6, learning_rate: 0.005
+    # Override for AI enhancement
+    n_estimators: 500  # Reduced for faster optimization
+    max_depth: 6       # Keep from base
+    learning_rate: 0.05  # Increased for faster convergence
+    subsample: 0.8     # Keep from base
+    colsample_bytree: 0.8  # Keep from base
+    reg_alpha: 0.1     # Enhanced regularization
+    reg_lambda: 1.0    # Enhanced regularization
+    scale_pos_weight: 'auto'  # AI-calculated based on class imbalance
   
   lightgbm:
-    n_estimators: 500
-    max_depth: 6
-    learning_rate: 0.05
-    subsample: 0.8
-    colsample_bytree: 0.8
-    num_leaves: 31
-    reg_alpha: 0.1
-    reg_lambda: 1.0
-    scale_pos_weight: 'auto'
+    # Inherit from base: n_estimators: 1000, max_depth: 4, learning_rate: 0.01
+    # Override for AI enhancement
+    n_estimators: 500  # Reduced for faster optimization
+    max_depth: 6       # Increased from base
+    learning_rate: 0.05  # Increased from base
+    subsample: 0.8     # Keep from base
+    colsample_bytree: 0.8  # Keep from base
+    num_leaves: 31     # AI-optimized
+    reg_alpha: 0.1     # Enhanced regularization
+    reg_lambda: 1.0    # Enhanced regularization
+    scale_pos_weight: 'auto'  # AI-calculated
   
   random_forest:
-    n_estimators: 300
-    max_depth: 10
-    min_samples_split: 5
-    min_samples_leaf: 2
-    max_features: 'sqrt'
-    class_weight: 'balanced'
+    # Inherit from base: n_estimators: 1000, max_depth: 6, min_samples_split: 10
+    # Override for AI enhancement
+    n_estimators: 300  # Reduced for faster optimization
+    max_depth: 10      # Increased from base
+    min_samples_split: 5  # Decreased from base
+    min_samples_leaf: 2   # Decreased from base
+    max_features: 'sqrt'  # Keep from base
+    class_weight: 'balanced'  # Keep from base
 
 # Cross-validation configuration
 cv:
