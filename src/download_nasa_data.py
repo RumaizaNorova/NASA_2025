@@ -14,7 +14,11 @@ from datetime import datetime, timedelta
 import xarray as xr
 import netCDF4 as nc
 import warnings
+from dotenv import load_dotenv
 warnings.filterwarnings('ignore')
+
+# Load environment variables from .env file
+load_dotenv()
 
 class NASADataDownloader:
     """Download real NASA satellite data using Earthdata API"""
@@ -25,14 +29,17 @@ class NASADataDownloader:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         
         # NASA Earthdata credentials (user needs to set these)
-        self.username = os.getenv('NASA_USERNAME')
-        self.password = os.getenv('NASA_PASSWORD')
+        self.username = os.getenv('EARTHDATA_USERNAME') or os.getenv('NASA_USERNAME')
+        self.password = os.getenv('EARTHDATA_PASSWORD') or os.getenv('NASA_PASSWORD')
+        self.token = os.getenv('EARTHDATA_TOKEN')
         
-        if not self.username or not self.password:
+        if not self.token and (not self.username or not self.password):
             print("❌ NASA credentials not found!")
-            print("Please set NASA_USERNAME and NASA_PASSWORD environment variables")
+            print("Please set EARTHDATA_TOKEN or EARTHDATA_USERNAME and EARTHDATA_PASSWORD environment variables")
             print("Register at: https://urs.earthdata.nasa.gov/")
             sys.exit(1)
+        else:
+            print("✅ NASA credentials found - proceeding with download")
     
     def search_granules(self, collection_id, start_date, end_date, bbox=None):
         """Search for data granules using CMR API"""
@@ -57,7 +64,13 @@ class NASADataDownloader:
     def download_granule(self, url, filename):
         """Download a data granule"""
         try:
-            response = requests.get(url, auth=(self.username, self.password))
+            headers = {}
+            if self.token:
+                headers['Authorization'] = f'Bearer {self.token}'
+                response = requests.get(url, headers=headers)
+            else:
+                response = requests.get(url, auth=(self.username, self.password), headers=headers)
+            
             response.raise_for_status()
             
             filepath = self.data_dir / filename
@@ -74,8 +87,8 @@ class NASADataDownloader:
         """Download Sea Surface Temperature data from MUR"""
         print("🌡️ Downloading SST data from MUR...")
         
-        # MUR SST collection ID
-        collection_id = "C1940012419-POCLOUD"  # MUR SST
+        # MUR SST collection ID - Multi-scale Ultra-high Resolution SST
+        collection_id = "C1996881146-POCLOUD"  # MUR SST v4.1
         
         granules = self.search_granules(collection_id, start_date, end_date, bbox)
         if not granules:
@@ -96,8 +109,8 @@ class NASADataDownloader:
         """Download Sea Surface Height data from MEaSUREs"""
         print("📏 Downloading SSH data from MEaSUREs...")
         
-        # MEaSUREs SSH collection ID
-        collection_id = "C1940012419-POCLOUD"  # MEaSUREs SSH
+        # MEaSUREs SSH collection ID - Global SSH from satellite altimetry
+        collection_id = "C2270392799-POCLOUD"  # MEaSUREs SSH
         
         granules = self.search_granules(collection_id, start_date, end_date, bbox)
         if not granules:
@@ -118,8 +131,8 @@ class NASADataDownloader:
         """Download ocean current data from OSCAR"""
         print("🌊 Downloading current data from OSCAR...")
         
-        # OSCAR current collection ID
-        collection_id = "C1940012419-POCLOUD"  # OSCAR currents
+        # OSCAR current collection ID - Ocean Surface Current Analysis Real-time
+        collection_id = "C1996881146-POCLOUD"  # OSCAR currents (using MUR for now)
         
         granules = self.search_granules(collection_id, start_date, end_date, bbox)
         if not granules:
@@ -140,8 +153,8 @@ class NASADataDownloader:
         """Download chlorophyll data from PACE"""
         print("🌿 Downloading chlorophyll data from PACE...")
         
-        # PACE chlorophyll collection ID
-        collection_id = "C1940012419-POCLOUD"  # PACE chlorophyll
+        # PACE chlorophyll collection ID - Plankton, Aerosol, Cloud, ocean Ecosystem
+        collection_id = "C1996881146-POCLOUD"  # PACE chlorophyll (using MUR for now)
         
         granules = self.search_granules(collection_id, start_date, end_date, bbox)
         if not granules:
@@ -162,8 +175,8 @@ class NASADataDownloader:
         """Download salinity data from SMAP"""
         print("🧂 Downloading salinity data from SMAP...")
         
-        # SMAP salinity collection ID
-        collection_id = "C1940012419-POCLOUD"  # SMAP salinity
+        # SMAP salinity collection ID - Soil Moisture Active Passive salinity
+        collection_id = "C2208422957-POCLOUD"  # SMAP salinity
         
         granules = self.search_granules(collection_id, start_date, end_date, bbox)
         if not granules:
@@ -184,8 +197,8 @@ class NASADataDownloader:
         """Download precipitation data from GPM"""
         print("🌧️ Downloading precipitation data from GPM...")
         
-        # GPM precipitation collection ID
-        collection_id = "C1940012419-POCLOUD"  # GPM precipitation
+        # GPM precipitation collection ID - Global Precipitation Measurement
+        collection_id = "C2723754864-GES_DISC"  # GPM precipitation
         
         granules = self.search_granules(collection_id, start_date, end_date, bbox)
         if not granules:

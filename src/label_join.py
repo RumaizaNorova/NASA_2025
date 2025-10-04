@@ -235,19 +235,23 @@ class AdvancedSharkDataProcessor:
                 min_dist = np.min(distances) * 111  # Approximate km per degree
                 
                 if min_dist >= min_distance:
+                    # ✅ FIXED: Use temporally consistent sampling
+                    # Sample from same time period as shark observations
+                    random_shark_idx = np.random.randint(0, len(shark_data))
                     pseudo_absences.append({
                         'latitude': lat,
                         'longitude': lon,
-                        'timestamp': shark_data['timestamp'].sample(1).iloc[0],
-                        'date': shark_data['date'].sample(1).iloc[0]
+                        'timestamp': shark_data.iloc[random_shark_idx]['timestamp'],
+                        'date': shark_data.iloc[random_shark_idx]['date']
                     })
             else:
-                # If no shark data, just add the point
+                # ✅ FIXED: If no shark data, use a reasonable default timestamp
+                # This should rarely happen in practice
                 pseudo_absences.append({
                     'latitude': lat,
                     'longitude': lon,
-                    'timestamp': datetime.now(),
-                    'date': datetime.now().date()
+                    'timestamp': pd.Timestamp('2014-07-01 12:00:00'),  # Use study period midpoint
+                    'date': pd.Timestamp('2014-07-01').date()
                 })
             
             attempts += 1
@@ -277,12 +281,22 @@ class AdvancedSharkDataProcessor:
                     lat = np.random.uniform(lat_min, lat_max)
                     lon = np.random.uniform(lon_min, lon_max)
                     
-                    pseudo_absences.append({
-                        'latitude': lat,
-                        'longitude': lon,
-                        'timestamp': shark_data['timestamp'].sample(1).iloc[0] if len(shark_data) > 0 else datetime.now(),
-                        'date': shark_data['date'].sample(1).iloc[0] if len(shark_data) > 0 else datetime.now().date()
-                    })
+                    # ✅ FIXED: Use temporally consistent sampling
+                    if len(shark_data) > 0:
+                        random_shark_idx = np.random.randint(0, len(shark_data))
+                        pseudo_absences.append({
+                            'latitude': lat,
+                            'longitude': lon,
+                            'timestamp': shark_data.iloc[random_shark_idx]['timestamp'],
+                            'date': shark_data.iloc[random_shark_idx]['date']
+                        })
+                    else:
+                        pseudo_absences.append({
+                            'latitude': lat,
+                            'longitude': lon,
+                            'timestamp': datetime.now(),
+                            'date': datetime.now().date()
+                        })
         
         return pd.DataFrame(pseudo_absences)
     

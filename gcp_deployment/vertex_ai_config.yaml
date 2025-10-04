@@ -1,0 +1,28 @@
+# Vertex AI Custom Job Configuration
+displayName: "Shark Habitat Prediction Training"
+jobSpec:
+  workerPoolSpecs:
+    - machineSpec:
+        machineType: "n1-standard-8"
+        acceleratorType: "NVIDIA_TESLA_T4"
+        acceleratorCount: 1
+      replicaCount: 1
+      containerSpec:
+        imageUri: "gcr.io/PROJECT_ID/shark-habitat-prediction:latest"
+        command: ["python"]
+        args: ["src/train_real_data_model.py"]
+        env:
+          - name: "GOOGLE_APPLICATION_CREDENTIALS"
+            value: "/app/gcp_credentials.json"
+          - name: "EARTHDATA_USERNAME"
+            value: "YOUR_EARTHDATA_USERNAME"
+          - name: "EARTHDATA_PASSWORD"
+            value: "YOUR_EARTHDATA_PASSWORD"
+        resources:
+          limits:
+            memory: "32Gi"
+            cpu: "8"
+  serviceAccount: "shark-habitat-service@PROJECT_ID.iam.gserviceaccount.com"
+  network: "projects/PROJECT_ID/global/networks/default"
+  timeout: "7200s"
+  restartJobOnWorkerRestart: false

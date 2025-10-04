@@ -1,0 +1,109 @@
+{
+  "timestamp": "2025-10-04T16:03:22.082747",
+  "overall_status": "FAIL",
+  "checks": {
+    "nasa_data_download": {
+      "status": "PASS",
+      "issues": [],
+      "details": {
+        "download_script": "EXISTS",
+        "data_directory": "EXISTS",
+        "netcdf_files": 1248
+      }
+    },
+    "data_processing": {
+      "status": "WARNING",
+      "issues": [
+        "Synthetic data method found: 'synthetic_data'",
+        "Processed features file not found"
+      ],
+      "details": {
+        "processing_script": "EXISTS"
+      }
+    },
+    "negative_sampling": {
+      "status": "FAIL",
+      "issues": [
+        "Random generation found: 'np.random'",
+        "Random generation found: 'random.choice'",
+        "Random generation found: 'random.uniform'",
+        "Random generation found: 'random.normal'"
+      ],
+      "details": {
+        "sampling_script": "EXISTS",
+        "negative_samples_file": "EXISTS",
+        "negative_samples_count": 8838,
+        "data_sources": {
+          "oceanographic_survey": 4696,
+          "fishing_vessel": 3000,
+          "environmental_sampling": 921,
+          "marine_protected_area": 221
+        }
+      }
+    },
+    "balanced_dataset": {
+      "status": "PASS",
+      "issues": [],
+      "details": {
+        "balanced_dataset_file": "EXISTS",
+        "total_samples": 403596,
+        "label_distribution": {
+          "1": 394758,
+          "0": 8838
+        },
+        "balance_ratio": 0.022388399981760978
+      }
+    },
+    "model_training": {
+      "status": "FAIL",
+      "issues": [
+        "Synthetic data references found in training script"
+      ],
+      "details": {
+        "training_script": "EXISTS",
+        "model_file": "EXISTS",
+        "model_metadata": {
+          "model_type": "RandomForestClassifier",
+          "data_source": "100% REAL NASA satellite data",
+          "training_data": {
+            "total_samples": "Real dataset size",
+            "positive_samples": "Real shark observations",
+            "negative_samples": "Real background locations",
+            "synthetic_data": "NONE - 100% REAL DATA"
+          },
+          "performance": {
+            "test_roc_auc": NaN,
+            "cv_roc_auc_mean": NaN,
+            "cv_roc_auc_std": NaN
+          },
+          "model_parameters": {
+            "n_estimators": 100,
+            "max_depth": 10,
+            "min_samples_split": 5,
+            "min_samples_leaf": 2,
+            "random_state": 42,
+            "n_jobs": -1
+          },
+          "created_at": "2025-10-04T04:33:08.558878"
+        }
+      }
+    },
+    "file_integrity": {
+      "status": "PASS",
+      "issues": [],
+      "details": {
+        "existing_files": [
+          "src/download_nasa_data.py",
+          "src/process_nasa_data.py",
+          "src/create_real_negative_sampling.py",
+          "src/train_real_data_model.py",
+          "src/validate_real_data_pipeline.py"
+        ],
+        "missing_files": [],
+        "data/raw_exists": true,
+        "data/interim_exists": true,
+        "models_exists": true
+      }
+    }
+  }
+}

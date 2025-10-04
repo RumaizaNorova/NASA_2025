@@ -1,0 +1,54 @@
+# Cloud Build configuration for automated deployment
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/shark-habitat-prediction:$COMMIT_SHA', '.']
+    dir: 'gcp_deployment'
+
+  # Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/shark-habitat-prediction:$COMMIT_SHA']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'shark-habitat-prediction'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/shark-habitat-prediction:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '4Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '3600'
+      - '--max-instances'
+      - '10'
+
+  # Deploy to Vertex AI for training
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'ai'
+      - 'custom-jobs'
+      - 'create'
+      - '--region=us-central1'
+      - '--display-name=shark-habitat-training'
+      - '--config=gcp_deployment/vertex_ai_config.yaml'
+
+# Store images in Container Registry
+images:
+  - 'gcr.io/$PROJECT_ID/shark-habitat-prediction:$COMMIT_SHA'
+
+# Build options
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: 100
+  logging: CLOUD_LOGGING_ONLY
