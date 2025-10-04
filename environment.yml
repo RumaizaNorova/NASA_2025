@@ -1,0 +1,42 @@
+name: sharks-from-space
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - scikit-image  # For Canny edge detection
+  - xarray
+  - rioxarray
+  - rasterio
+  - xesmf
+  - netCDF4
+  - shapely
+  - geopy
+  - pyproj
+  - xgboost
+  - lightgbm  # Additional ML algorithm
+  - shap
+  - matplotlib
+  - seaborn
+  - folium
+  - tqdm
+  - requests
+  - aiohttp  # For async HTTP requests
+  - python-dotenv
+  - click
+  - pillow
+  - notebook
+  - jupyterlab
+  - dask  # For parallel processing
+  - zarr  # For efficient storage
+  - lz4  # For compression
+  - pyyaml
+  - pytest  # For testing
+  - plotly  # For interactive visualizations
+  - ipywidgets  # For Jupyter widgets
+  - mapboxgl  # For Mapbox integration
+  - earthaccess  # For NASA data access

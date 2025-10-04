@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <title>Sharks from Space - Advanced Habitat Prediction</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    #map { 
+      position: absolute; 
+      top: 0; 
+      bottom: 0; 
+      width: 100%; 
+    }
+    
+    .control-panel { 
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-width: 300px;
+      z-index: 1000;
+    }
+    
+    .control-panel h3 { 
+      margin: 0 0 15px 0; 
+      color: #2c3e50;
+      font-size: 1.4em;
+      text-align: center;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .control-group {
+      margin: 15px 0;
+      padding: 10px;
+      background: rgba(248, 249, 250, 0.8);
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .control-group h4 {
+      margin: 0 0 10px 0;
+      color: #495057;
+      font-size: 1.1em;
+    }
+    
+    .control-panel label { 
+      display: block; 
+      margin: 8px 0 4px 0;
+      font-weight: 500;
+      color: #495057;
+    }
+    
+    .control-panel input[type='range'] { 
+      width: 100%; 
+      margin: 5px 0;
+      background: transparent;
+    }
+    
+    .control-panel select {
+      width: 100%;
+      padding: 8px;
+      border: 2px solid #e9ecef;
+      border-radius: 6px;
+      background: white;
+      margin: 5px 0;
+    }
+    
+    .control-panel button { 
+      margin: 5px 2px; 
+      padding: 10px 15px; 
+      border: none;
+      border-radius: 8px; 
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .control-panel button:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .control-panel button:active {
+      transform: translateY(0);
+    }
+    
+    .info-panel { 
+      position: absolute; 
+      bottom: 20px; 
+      left: 20px; 
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 350px;
+      z-index: 1000;
+    }
+    
+    .info-panel h4 {
+      margin: 0 0 10px 0;
+      color: #2c3e50;
+      font-size: 1.2em;
+      text-align: center;
+    }
+    
+    .info-panel p {
+      margin: 5px 0;
+      color: #495057;
+      font-size: 0.9em;
+    }
+    
+    .performance-dashboard {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-width: 250px;
+      z-index: 1000;
+    }
+    
+    .performance-dashboard h4 {
+      margin: 0 0 15px 0;
+      color: #2c3e50;
+      font-size: 1.2em;
+      text-align: center;
+    }
+    
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      padding: 5px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .metric:last-child {
+      border-bottom: none;
+    }
+    
+    .metric-label {
+      font-weight: 500;
+      color: #495057;
+    }
+    
+    .metric-value {
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 2000;
+      text-align: center;
+    }
+    
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 1000;
+    }
+    
+    .legend h5 {
+      margin: 0 0 10px 0;
+      color: #2c3e50;
+      font-size: 1em;
+      text-align: center;
+    }
+    
+    .legend-gradient {
+      width: 200px;
+      height: 20px;
+      background: linear-gradient(to right, #000080, #0000FF, #00FFFF, #00FF00, #FFFF00, #FF8000, #FF0000);
+      border-radius: 10px;
+      margin: 5px 0;
+    }
+    
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8em;
+      color: #495057;
+    }
+    
+    .notification {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(40, 167, 69, 0.95);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .notification.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id='map'></div>
+  
+  <!-- Control Panel -->
+  <div class='control-panel'>
+    <h3>🦈 Sharks from Space</h3>
+    
+    <div class='control-group'>
+      <h4>Model Selection</h4>
+      <select id='modelSelect'>
+        <option value='xgboost'>XGBoost (Best Performance)</option>
+        <option value='lightgbm'>LightGBM (Fast Training)</option>
+        <option value='random_forest'>Random Forest (Robust)</option>
+      </select>
+    </div>
+    
+    <div class='control-group'>
+      <h4>Time Controls</h4>
+      <label for='dateSlider'>Date: <span id='currentDate'>2014-07-01</span></label>
+      <input type='range' id='dateSlider' min='0' max='13' value='0' step='1'>
+      
+      <div style='margin-top: 10px;'>
+        <button id='playPauseBtn'>▶️ Play</button>
+        <button id='resetBtn'>🔄 Reset</button>
+        <button id='exportBtn'>📥 Export</button>
+      </div>
+    </div>
+    
+    <div class='control-group'>
+      <h4>Display Options</h4>
+      <label>
+        <input type='checkbox' id='showSharkTracks' checked> Show Shark Tracks
+      </label>
+      <label>
+        <input type='checkbox' id='showEnvironmental' checked> Environmental Data
+      </label>
+      <label>
+        <input type='checkbox' id='showConfidence'> Confidence Intervals
+      </label>
+    </div>
+    
+    <div class='control-group'>
+      <h4>Animation Speed</h4>
+      <label for='speedSlider'>Speed: <span id='speedValue'>1x</span></label>
+      <input type='range' id='speedSlider' min='0.5' max='3' value='1' step='0.5'>
+    </div>
+  </div>
+  
+  <!-- Performance Dashboard -->
+  <div class='performance-dashboard'>
+    <h4>📊 Model Performance</h4>
+    <div class='metric'>
+      <span class='metric-label'>ROC-AUC:</span>
+      <span class='metric-value' id='rocAuc'>0.70</span>
+    </div>
+    <div class='metric'>
+      <span class='metric-label'>PR-AUC:</span>
+      <span class='metric-value' id='prAuc'>0.45</span>
+    </div>
+    <div class='metric'>
+      <span class='metric-label'>F1-Score:</span>
+      <span class='metric-value' id='f1Score'>0.50</span>
+    </div>
+    <div class='metric'>
+      <span class='metric-label'>TSS:</span>
+      <span class='metric-value' id='tss'>0.35</span>
+    </div>
+    <div class='metric'>
+      <span class='metric-label'>Processing Time:</span>
+      <span class='metric-value' id='processingTime'>2.5h</span>
+    </div>
+  </div>
+  
+  <!-- Info Panel -->
+  <div class='info-panel'>
+    <h4>🌊 Habitat Prediction</h4>
+    <p><strong>Model:</strong> <span id='currentModel'>XGBoost</span></p>
+    <p><strong>Resolution:</strong> 0.05° (~5.5km)</p>
+    <p><strong>Data Range:</strong> 365 days (2014)</p>
+    <p><strong>Features:</strong> 37 oceanographic variables</p>
+    <p><strong>Region:</strong> South Atlantic Ocean</p>
+    <p><strong>Species:</strong> White Shark (Carcharodon carcharias)</p>
+  </div>
+  
+  <!-- Legend -->
+  <div class='legend'>
+    <h5>Habitat Probability</h5>
+    <div class='legend-gradient'></div>
+    <div class='legend-labels'>
+      <span>0.0</span>
+      <span>0.5</span>
+      <span>1.0</span>
+    </div>
+  </div>
+  
+  <!-- Loading Indicator -->
+  <div class='loading' id='loadingIndicator' style='display: none;'>
+    <div class='spinner'></div>
+    <p>Loading habitat predictions...</p>
+  </div>
+  
+  <!-- Notification -->
+  <div class='notification' id='notification'>
+    Model switched successfully!
+  </div>
+  
+  <script>
+    // Initialize Mapbox (you'll need to add your token)
+    mapboxgl.accessToken = 'pk.eyJ1IjoieW91cnVzZXJuYW1lIiwiYSI6ImNrc2R0cXZ0bTAwYjkyb3FyZnN0cXZ0bSJ9.yourtokenhere'; // Replace with your token
+    
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: [-20.0, -35.0], // South Atlantic focus
+      zoom: 5,
+      pitch: 45,
+      bearing: 0
+    });
+    
+    // Time series data
+    const timeSeriesData = {
+      'xgboost': [
+        "web/data/habitat_prob_xgboost_20140701.png",
+        "web/data/habitat_prob_xgboost_20140702.png",
+        "web/data/habitat_prob_xgboost_20140703.png",
+        "web/data/habitat_prob_xgboost_20140704.png",
+        "web/data/habitat_prob_xgboost_20140705.png",
+        "web/data/habitat_prob_xgboost_20140706.png",
+        "web/data/habitat_prob_xgboost_20140707.png",
+        "web/data/habitat_prob_xgboost_20140708.png",
+        "web/data/habitat_prob_xgboost_20140709.png",
+        "web/data/habitat_prob_xgboost_20140710.png",
+        "web/data/habitat_prob_xgboost_20140711.png",
+        "web/data/habitat_prob_xgboost_20140712.png",
+        "web/data/habitat_prob_xgboost_20140713.png",
+        "web/data/habitat_prob_xgboost_20140714.png"
+      ],
+      'lightgbm': [
+        "web/data/habitat_prob_lightgbm_20140701.png",
+        "web/data/habitat_prob_lightgbm_20140702.png",
+        "web/data/habitat_prob_lightgbm_20140703.png",
+        "web/data/habitat_prob_lightgbm_20140704.png",
+        "web/data/habitat_prob_lightgbm_20140705.png",
+        "web/data/habitat_prob_lightgbm_20140706.png",
+        "web/data/habitat_prob_lightgbm_20140707.png",
+        "web/data/habitat_prob_lightgbm_20140708.png",
+        "web/data/habitat_prob_lightgbm_20140709.png",
+        "web/data/habitat_prob_lightgbm_20140710.png",
+        "web/data/habitat_prob_lightgbm_20140711.png",
+        "web/data/habitat_prob_lightgbm_20140712.png",
+        "web/data/habitat_prob_lightgbm_20140713.png",
+        "web/data/habitat_prob_lightgbm_20140714.png"
+      ],
+      'random_forest': [
+        "web/data/habitat_prob_random_forest_20140701.png",
+        "web/data/habitat_prob_random_forest_20140702.png",
+        "web/data/habitat_prob_random_forest_20140703.png",
+        "web/data/habitat_prob_random_forest_20140704.png",
+        "web/data/habitat_prob_random_forest_20140705.png",
+        "web/data/habitat_prob_random_forest_20140706.png",
+        "web/data/habitat_prob_random_forest_20140707.png",
+        "web/data/habitat_prob_random_forest_20140708.png",
+        "web/data/habitat_prob_random_forest_20140709.png",
+        "web/data/habitat_prob_random_forest_20140710.png",
+        "web/data/habitat_prob_random_forest_20140711.png",
+        "web/data/habitat_prob_random_forest_20140712.png",
+        "web/data/habitat_prob_random_forest_20140713.png",
+        "web/data/habitat_prob_random_forest_20140714.png"
+      ]
+    };
+    
+    const dates = [
+      "2014-07-01", "2014-07-02", "2014-07-03", "2014-07-04", "2014-07-05",
+      "2014-07-06", "2014-07-07", "2014-07-08", "2014-07-09", "2014-07-10",
+      "2014-07-11", "2014-07-12", "2014-07-13", "2014-07-14"
+    ];
+    
+    // Model performance data
+    const modelPerformance = {
+      'xgboost': { rocAuc: 0.70, prAuc: 0.45, f1Score: 0.50, tss: 0.35 },
+      'lightgbm': { rocAuc: 0.68, prAuc: 0.42, f1Score: 0.47, tss: 0.32 },
+      'random_forest': { rocAuc: 0.65, prAuc: 0.38, f1Score: 0.43, tss: 0.28 }
+    };
+    
+    let currentDateIndex = 0;
+    let currentModel = 'xgboost';
+    let isPlaying = false;
+    let playInterval;
+    let animationSpeed = 1;
+    
+    // DOM elements
+    const dateSlider = document.getElementById('dateSlider');
+    const currentDateSpan = document.getElementById('currentDate');
+    const modelSelect = document.getElementById('modelSelect');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedValue = document.getElementById('speedValue');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const notification = document.getElementById('notification');
+    
+    // Performance display elements
+    const rocAucSpan = document.getElementById('rocAuc');
+    const prAucSpan = document.getElementById('prAuc');
+    const f1ScoreSpan = document.getElementById('f1Score');
+    const tssSpan = document.getElementById('tss');
+    const currentModelSpan = document.getElementById('currentModel');
+    
+    function updatePerformanceDisplay() {
+      const perf = modelPerformance[currentModel];
+      rocAucSpan.textContent = perf.rocAuc.toFixed(3);
+      prAucSpan.textContent = perf.prAuc.toFixed(3);
+      f1ScoreSpan.textContent = perf.f1Score.toFixed(3);
+      tssSpan.textContent = perf.tss.toFixed(3);
+      currentModelSpan.textContent = currentModel.charAt(0).toUpperCase() + currentModel.slice(1);
+    }
+    
+    function loadImageForDate(dateIndex, model) {
+      const imagePath = timeSeriesData[model][dateIndex];
+      if (!imagePath) return;
+      
+      fetch(imagePath)
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onload = function() {
+            const dataUri = reader.result;
+            if (map.getSource('habitat')) {
+              map.getSource('habitat').setData({
+                'type': 'image',
+                'url': dataUri,
+                'coordinates': [
+                  [-80.0, 45.0],
+                  [-60.0, 45.0],
+                  [-60.0, 30.0],
+                  [-80.0, 30.0]
+                ]
+              });
+            } else {
+              map.addSource('habitat', {
+                'type': 'image',
+                'url': dataUri,
+                'coordinates': [
+                  [-80.0, 45.0],
+                  [-60.0, 45.0],
+                  [-60.0, 30.0],
+                  [-80.0, 30.0]
+                ]
+              });
+              map.addLayer({
+                'id': 'habitat-layer',
+                'type': 'raster',
+                'source': 'habitat',
+                'paint': { 'raster-opacity': 0.85 }
+              });
+            }
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch(error => {
+          console.error('Error loading image:', error);
+        });
+    }
+    
+    function updateDateDisplay() {
+      currentDateSpan.textContent = dates[currentDateIndex];
+      dateSlider.value = currentDateIndex;
+      loadImageForDate(currentDateIndex, currentModel);
+    }
+    
+    function showNotification(message) {
+      notification.textContent = message;
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 2000);
+    }
+    
+    // Event listeners
+    dateSlider.addEventListener('input', function() {
+      currentDateIndex = parseInt(this.value);
+      updateDateDisplay();
+    });
+    
+    modelSelect.addEventListener('change', function() {
+      currentModel = this.value;
+      updatePerformanceDisplay();
+      loadImageForDate(currentDateIndex, currentModel);
+      showNotification(`Switched to ${currentModel} model`);
+    });
+    
+    playPauseBtn.addEventListener('click', function() {
+      if (isPlaying) {
+        clearInterval(playInterval);
+        this.textContent = '▶️ Play';
+        isPlaying = false;
+      } else {
+        playInterval = setInterval(() => {
+          currentDateIndex = (currentDateIndex + 1) % dates.length;
+          updateDateDisplay();
+        }, 1000 / animationSpeed);
+        this.textContent = '⏸️ Pause';
+        isPlaying = true;
+      }
+    });
+    
+    resetBtn.addEventListener('click', function() {
+      currentDateIndex = 0;
+      updateDateDisplay();
+      if (isPlaying) {
+        clearInterval(playInterval);
+        playPauseBtn.textContent = '▶️ Play';
+        isPlaying = false;
+      }
+    });
+    
+    exportBtn.addEventListener('click', function() {
+      // Export functionality would be implemented here
+      showNotification('Export functionality coming soon!');
+    });
+    
+    speedSlider.addEventListener('input', function() {
+      animationSpeed = parseFloat(this.value);
+      speedValue.textContent = `${animationSpeed}x`;
+      
+      if (isPlaying) {
+        clearInterval(playInterval);
+        playInterval = setInterval(() => {
+          currentDateIndex = (currentDateIndex + 1) % dates.length;
+          updateDateDisplay();
+        }, 1000 / animationSpeed);
+      }
+    });
+    
+    // Initialize map
+    map.on('load', function() {
+      // Load initial image
+      loadImageForDate(0, currentModel);
+      map.fitBounds([[-80.0, 30.0], [-60.0, 45.0]]);
+      updatePerformanceDisplay();
+      
+      // Add navigation controls
+      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+      
+      // Add scale control
+      map.addControl(new mapboxgl.ScaleControl({
+        maxWidth: 100,
+        unit: 'metric'
+      }), 'bottom-left');
+    });
+    
+    // Add click handler for map interactions
+    map.on('click', function(e) {
+      // Future: Add popup with detailed information
+      console.log('Clicked at:', e.lngLat);
+    });
+  </script>
+</body>
+</html>

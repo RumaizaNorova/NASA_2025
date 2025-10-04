@@ -1,0 +1,92 @@
+roi:
+  lon_min: 5.0      # Expanded from 15.0 - covers entire South Atlantic
+  lon_max: 35.0     # Expanded from 25.0 - includes more oceanographic features
+  lat_min: -45.0    # Expanded from -40.0 - includes sub-Antarctic waters
+  lat_max: -25.0    # Expanded from -30.0 - includes subtropical convergence
+time:
+  start: "2014-01-01"
+  end: "2014-12-31"
+species: "white_shark"
+gridding:
+  target_res_deg: 0.1   # Higher resolution for regional coverage
+  chunk_size: 2000      # Increased for better parallel processing
+  memory_chunk_size: 30 # Process data in 30-day chunks to manage memory
+features:
+  sst_front_threshold_c_per_km: 0.3
+  chl_front_threshold_percentile: 95
+  eddy_ow_sigma: 1.0     # use OW < -sigma(OW) as core
+  gradient_method: "advanced"  # 'simple' or 'advanced' with cos(lat) scaling
+  front_detection_method: "canny"  # 'threshold' or 'canny' edge detection
+  eddy_detection_method: "ow_enhanced"  # 'ow' or 'ow_enhanced'
+model:
+  algorithms: ["xgboost", "random_forest", "lightgbm"]  # Multiple models to test
+  xgboost:
+    n_estimators: 2000  # More trees for better learning
+    max_depth: 6  # Slightly deeper for more complex patterns
+    learning_rate: 0.005  # Even lower learning rate for stability
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.05  # Lighter L1 regularization
+    reg_lambda: 0.5  # Lighter L2 regularization
+    min_child_weight: 2  # Allow more flexibility
+    scale_pos_weight: 3.0  # Reduced weight for better balance
+    early_stopping_rounds: 100  # Prevent overfitting
+    eval_metric: 'auc'
+  random_forest:
+    n_estimators: 1000
+    max_depth: 6  # Reduced depth
+    min_samples_split: 10  # Increased to prevent overfitting
+    min_samples_leaf: 5
+    class_weight: "balanced"  # Handle class imbalance
+    max_features: "sqrt"  # Reduce overfitting
+  lightgbm:
+    n_estimators: 1000
+    max_depth: 4
+    learning_rate: 0.01
+    subsample: 0.7
+    colsample_bytree: 0.7
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    min_child_samples: 10
+    class_weight: "balanced"
+cv:
+  scheme: "spatial"      # 'spatial' or 'by_individual' if shark_id present
+  folds: 5
+  test_size: 0.2
+pseudo_absence:
+  n_samples: 2590        # Optimal 1:10 ratio (259 shark observations × 10)
+  min_distance_km: 5.0   # Minimum distance from shark observations
+  sampling_strategy: "stratified"  # Use stratified sampling for better coverage
+evaluation:
+  metrics: ["roc_auc", "pr_auc", "tss", "f1", "precision", "recall"]
+  calibration_curves: true
+  feature_importance: true
+  shap_explanations: true
+data_sources:
+  mur_sst:
+    collection: "MUR-JPL-L4-GLOB-v4.1"
+    variables: ["analysed_sst"]
+  measures_ssh:
+    collection: "SEA_SURFACE_HEIGHT_ALT_GRIDS_L4_2SATS_5DAY_6THDEG_V_JPL2205"
+    variables: ["sla"]
+  oscar_currents:
+    collection: "OSCAR_L4_OC_third-deg"
+    variables: ["u", "v"]
+  pace_chl:
+    collection: "PACE_OCI_L2_OCEAN"
+    variables: ["chlor_a"]
+  smap_salinity:
+    collection: "SMAP_JPL_L3_SSS_CAP_8DAY-RUNNINGMEAN_V5"
+    variables: ["sss_smap"]
+  gpm_precipitation:
+    collection: "GPM_3IMERGDF"
+    variables: ["precipitation"]
+performance:
+  parallel_downloads: true
+  max_workers: 8         # Increased to utilize more CPU cores
+  use_dask: true
+  storage_format: "zarr"  # 'netcdf' or 'zarr'
+  compression: "lz4"
+  batch_size: 30         # Process data in 30-day batches
+  memory_limit_gb: 2.0   # Set memory limit to prevent system overload
+  enable_gpu: false      # CPU processing for compatibility

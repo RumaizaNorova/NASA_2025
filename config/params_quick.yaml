@@ -1,0 +1,76 @@
+roi:
+  lon_min: 15.0      # Smaller region for quick testing
+  lon_max: 25.0     
+  lat_min: -40.0    
+  lat_max: -30.0    
+time:
+  start: "2014-07-01"  # Just 14 days for quick testing
+  end: "2014-07-14"
+species: "white_shark"
+gridding:
+  target_res_deg: 0.1   
+  chunk_size: 1000      
+  memory_chunk_size: 7  # Process data in 7-day chunks
+features:
+  sst_front_threshold_c_per_km: 0.3
+  chl_front_threshold_percentile: 95
+  eddy_ow_sigma: 1.0     
+  gradient_method: "advanced"  
+  front_detection_method: "canny"  
+  eddy_detection_method: "ow_enhanced"  
+model:
+  algorithms: ["xgboost"]  # Just one model for quick testing
+  xgboost:
+    n_estimators: 100  # Fewer trees for speed
+    max_depth: 4
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.05
+    reg_lambda: 0.5
+    min_child_weight: 2
+    scale_pos_weight: 3.0
+    early_stopping_rounds: 20  # Stop early for speed
+    eval_metric: 'auc'
+cv:
+  scheme: "spatial"      
+  folds: 3  # Fewer folds for speed
+  test_size: 0.2
+pseudo_absence:
+  n_samples: 2000       # Much smaller for quick testing
+  min_distance_km: 5.0   
+  sampling_strategy: "stratified"  
+evaluation:
+  metrics: ["roc_auc", "pr_auc", "tss", "f1"]
+  calibration_curves: false  # Disable for speed
+  feature_importance: true
+  shap_explanations: false  # Disable for speed
+data_sources:
+  mur_sst:
+    collection: "MUR-JPL-L4-GLOB-v4.1"
+    variables: ["analysed_sst"]
+  measures_ssh:
+    collection: "SEA_SURFACE_HEIGHT_ALT_GRIDS_L4_2SATS_5DAY_6THDEG_V_JPL2205"
+    variables: ["sla"]
+  oscar_currents:
+    collection: "OSCAR_L4_OC_third-deg"
+    variables: ["u", "v"]
+  pace_chl:
+    collection: "PACE_OCI_L2_OCEAN"
+    variables: ["chlor_a"]
+  smap_salinity:
+    collection: "SMAP_JPL_L3_SSS_CAP_8DAY-RUNNINGMEAN_V5"
+    variables: ["sss_smap"]
+  gpm_precipitation:
+    collection: "GPM_3IMERGDF"
+    variables: ["precipitation"]
+performance:
+  parallel_downloads: true
+  max_workers: 4         # Fewer workers for stability
+  use_dask: true
+  storage_format: "zarr"  
+  compression: "lz4"
+  batch_size: 7         # Smaller batches for quick testing
+  memory_limit_gb: 1.0   # Lower memory limit
+  enable_gpu: false      
+

@@ -1,0 +1,116 @@
+roi:
+  lon_min: 5.0      # Expanded region covers entire South Atlantic
+  lon_max: 35.0     # Includes more oceanographic features
+  lat_min: -45.0    # Includes sub-Antarctic waters
+  lat_max: -25.0    # Includes subtropical convergence
+
+time:
+  start: "2014-07-01"  # Using existing NASA data
+  end: "2014-07-14"
+
+species: "white_shark"
+
+gridding:
+  target_res_deg: 0.05   # Higher resolution for better detail
+  chunk_size: 2000       # Optimized for parallel processing
+  memory_chunk_size: 30  # Process data in 30-day chunks
+
+features:
+  sst_front_threshold_c_per_km: 0.3
+  chl_front_threshold_percentile: 95
+  eddy_ow_sigma: 1.0
+  gradient_method: "advanced"  # Advanced with cos(lat) scaling
+  front_detection_method: "canny"  # Canny edge detection
+  eddy_detection_method: "ow_enhanced"  # Enhanced Okubo-Weiss
+
+model:
+  algorithms: ["xgboost", "lightgbm", "random_forest"]
+  xgboost:
+    n_estimators: 500   # Reduced for faster training while maintaining performance
+    max_depth: 6        # Optimal depth
+    learning_rate: 0.05 # Balanced learning rate
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.1      # L1 regularization
+    reg_lambda: 1.0     # L2 regularization
+    min_child_weight: 5 # Prevent overfitting
+    scale_pos_weight: 3.0  # Handle class imbalance
+    early_stopping_rounds: 50
+    eval_metric: 'logloss'
+  lightgbm:
+    n_estimators: 500   # Reduced for faster training
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    min_child_samples: 10
+    class_weight: "balanced"
+    early_stopping_rounds: 50
+  random_forest:
+    n_estimators: 300   # Balanced for performance and speed
+    max_depth: 10       # Increased for better learning
+    min_samples_split: 5
+    min_samples_leaf: 2
+    class_weight: "balanced"
+    max_features: "sqrt"
+
+cv:
+  scheme: "spatial"
+  folds: 5
+  test_size: 0.2
+
+pseudo_absence:
+  n_samples: 2590        # Optimal 1:10 ratio (259 observations × 10)
+  min_distance_km: 5.0   # Reduced from 10km for better sampling
+  sampling_strategy: "stratified"
+
+evaluation:
+  metrics: ["roc_auc", "pr_auc", "tss", "f1", "precision", "recall"]
+  calibration_curves: true
+  feature_importance: true
+  shap_explanations: true
+
+output:
+  features_path: "data/interim/features.nc"
+  training_data_path: "data/interim/training_data.csv"
+  models_path: "data/interim"
+  predictions_path: "web/data"
+
+data_sources:
+  mur_sst:
+    collection: "MUR-JPL-L4-GLOB-v4.1"
+    variables: ["analysed_sst"]
+  measures_ssh:
+    collection: "SEA_SURFACE_HEIGHT_ALT_GRIDS_L4_2SATS_5DAY_6THDEG_V_JPL2205"
+    variables: ["sla"]
+  oscar_currents:
+    collection: "OSCAR_L4_OC_third-deg"
+    variables: ["u", "v"]
+  pace_chl:
+    collection: "PACE_OCI_L2_OCEAN"
+    variables: ["chlor_a"]
+  smap_salinity:
+    collection: "SMAP_JPL_L3_SSS_CAP_8DAY-RUNNINGMEAN_V5"
+    variables: ["sss_smap"]
+  gpm_precipitation:
+    collection: "GPM_3IMERGDF"
+    variables: ["precipitation"]
+
+performance:
+  parallel_downloads: true
+  max_workers: 8
+  use_dask: true
+  storage_format: "zarr"
+  compression: "lz4"
+  batch_size: 30
+  memory_limit_gb: 4.0  # Increased for better performance
+  enable_gpu: false
+
+visualization:
+  mapbox_token: null  # Will be set from environment
+  output_formats: ["png", "geotiff", "json"]
+  time_series_animation: true
+  multi_model_comparison: true
+  interactive_features: true
