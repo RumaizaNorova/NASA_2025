@@ -1,0 +1,291 @@
+# AI-Enhanced Configuration for Shark Habitat Prediction
+# This configuration includes advanced ML techniques, AI analysis, and optimization
+
+# Model configuration
+model:
+  algorithms: ['xgboost', 'lightgbm', 'random_forest']  # Algorithms to train
+  optimization:
+    enable_optuna: true
+    n_trials: 100
+    timeout: 3600  # seconds
+  
+  # Algorithm-specific parameters (will be overridden by optimization)
+  xgboost:
+    n_estimators: 500
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    scale_pos_weight: 'auto'  # Will be calculated based on class imbalance
+  
+  lightgbm:
+    n_estimators: 500
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    num_leaves: 31
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    scale_pos_weight: 'auto'
+  
+  random_forest:
+    n_estimators: 300
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+    max_features: 'sqrt'
+    class_weight: 'balanced'
+
+# Cross-validation configuration
+cv:
+  scheme: 'spatial'  # Options: 'spatial', 'temporal', 'by_individual', 'random'
+  folds: 5
+  random_state: 42
+
+# Evaluation configuration
+evaluation:
+  metrics:
+    - 'roc_auc'
+    - 'pr_auc'
+    - 'tss'
+    - 'f1'
+    - 'precision'
+    - 'recall'
+    - 'accuracy'
+    - 'specificity'
+    - 'sensitivity'
+  
+  shap_explanations: true
+  calibration_curves: true
+  feature_importance: true
+  
+  # Performance targets
+  targets:
+    roc_auc: 0.65
+    pr_auc: 0.35
+    tss: 0.20
+    f1: 0.30
+
+# AI Analysis configuration
+ai_analysis:
+  enable: true
+  
+  # OpenAI integration
+  openai:
+    model: 'gpt-4'
+    max_tokens: 2000
+    temperature: 0.3
+  
+  # Analysis types
+  performance_analysis: true
+  feature_analysis: true
+  behavior_analysis: true
+  recommendations: true
+  comprehensive_report: true
+  
+  # Sampling strategies for class imbalance
+  sampling:
+    strategy: 'smote'  # Options: 'smote', 'adasyn', 'borderline_smote', 'smoteenn', 'smotetomek', 'random_under', 'tomek_links', 'none'
+    k_neighbors: 1  # For SMOTE variants
+  
+  # Hyperparameter optimization
+  optimization:
+    enable: true
+    n_trials: 50  # Reduced for faster execution
+    timeout: 1800  # 30 minutes
+    study_name: 'shark_habitat_optimization'
+  
+  # Ensemble methods
+  ensemble:
+    enable: true
+    methods: ['voting', 'stacking']  # Options: 'voting', 'stacking'
+    voting_type: 'soft'  # For voting classifier
+  
+  # Cost-sensitive learning
+  cost_sensitive:
+    enable: true
+    method: 'scale_pos_weight'  # Options: 'scale_pos_weight', 'class_weight', 'focal_loss'
+    focal_loss:
+      alpha: 1.0
+      gamma: 2.0
+
+# Data processing configuration
+data:
+  # Feature engineering
+  feature_engineering:
+    enable: true
+    temporal_features: true
+    interaction_features: true
+    polynomial_features: false  # Can be computationally expensive
+    feature_selection: true
+  
+  # Data validation
+  validation:
+    check_missing: true
+    check_outliers: true
+    check_data_types: true
+    outlier_threshold: 3.0  # Standard deviations
+  
+  # Data quality thresholds
+  quality_thresholds:
+    min_samples_per_class: 1
+    max_missing_ratio: 0.1
+    min_feature_variance: 1e-6
+
+# Advanced ML techniques
+advanced_ml:
+  # Focal loss for extreme imbalance
+  focal_loss:
+    enable: false  # Experimental
+    alpha: 1.0
+    gamma: 2.0
+  
+  # Advanced validation strategies
+  validation:
+    spatial_cv: true
+    temporal_cv: true
+    individual_cv: true
+    bootstrap_validation: false
+  
+  # Model interpretability
+  interpretability:
+    shap: true
+    lime: false  # Can be slow for large datasets
+    permutation_importance: true
+    partial_dependence: true
+
+# Logging configuration
+logging:
+  level: 'INFO'
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  file: 'logs/ai_enhanced_training.log'
+  
+# Output configuration
+output:
+  # Save models
+  save_models: true
+  model_format: 'pkl'  # Options: 'pkl', 'joblib', 'json' (for tree models)
+  
+  # Save results
+  save_results: true
+  results_format: 'json'
+  
+  # Generate visualizations
+  visualizations:
+    feature_importance: true
+    model_comparison: true
+    calibration_curves: true
+    shap_plots: true
+    performance_plots: true
+  
+  # Generate reports
+  reports:
+    training_summary: true
+    ai_analysis_report: true
+    performance_report: true
+    feature_importance_report: true
+
+# Performance monitoring
+monitoring:
+  # Track training progress
+  progress_tracking: true
+  
+  # Early stopping
+  early_stopping:
+    enable: true
+    patience: 10
+    min_delta: 0.001
+  
+  # Memory usage monitoring
+  memory_monitoring: true
+  
+  # Performance benchmarks
+  benchmarks:
+    baseline_roc_auc: 0.536
+    target_roc_auc: 0.65
+    improvement_threshold: 0.02
+
+# Experimental features
+experimental:
+  # Neural network architectures
+  neural_networks:
+    enable: false
+    architectures: ['mlp', 'cnn', 'lstm']  # Requires additional setup
+  
+  # AutoML integration
+  automl:
+    enable: false
+    framework: 'auto-sklearn'  # Options: 'auto-sklearn', 'h2o', 'tpot'
+  
+  # Advanced sampling
+  advanced_sampling:
+    enable: true
+    methods: ['smote', 'adasyn', 'borderline_smote']
+    custom_samplers: false
+
+# Resource management
+resources:
+  # Parallel processing
+  n_jobs: -1  # Use all available cores
+  
+  # Memory management
+  memory_limit: '8GB'  # Approximate limit
+  
+  # GPU usage (if available)
+  gpu:
+    enable: false
+    device: 'auto'  # Options: 'auto', 'cuda', 'cpu'
+  
+  # Distributed computing
+  distributed:
+    enable: false
+    backend: 'dask'  # Options: 'dask', 'ray'
+
+# Validation and testing
+validation:
+  # Data integrity checks
+  data_integrity:
+    enable: true
+    checks: ['missing_values', 'outliers', 'data_types', 'ranges']
+  
+  # Model validation
+  model_validation:
+    enable: true
+    cross_validation: true
+    holdout_test: true
+    temporal_validation: true
+  
+  # Performance validation
+  performance_validation:
+    enable: true
+    minimum_metrics:
+      roc_auc: 0.5
+      pr_auc: 0.1
+      tss: -0.5
+    target_metrics:
+      roc_auc: 0.65
+      pr_auc: 0.35
+      tss: 0.20
+
+# Documentation and reproducibility
+documentation:
+  # Save configuration
+  save_config: true
+  
+  # Generate documentation
+  generate_docs: true
+  
+  # Reproducibility
+  reproducibility:
+    save_random_state: true
+    save_data_hash: true
+    save_model_hash: true
+  
+  # Version control
+  versioning:
+    enable: true
+    track_changes: true
+    save_versions: true

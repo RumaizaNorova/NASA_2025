@@ -1,0 +1,60 @@
+[33mcommit b92e300cfdc624d6a50d1947e1de2a7dcb7a47cf[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: rumaiza <rumayza.n@gmail.com>
+Date:   Sat Oct 4 00:01:32 2025 -0600
+
+    Initial commit: Sharks from Space NASA project with enhanced ML pipeline
+    
+    - Complete end-to-end pipeline working with real NASA satellite data
+    - Multiple ML algorithms (XGBoost, LightGBM, Random Forest) with advanced cross-validation
+    - SHAP explanations and feature importance analysis
+    - Interactive web visualization with time series animation
+    - Comprehensive validation and error handling
+    - Single command execution: make all-enhanced
+    - Current baseline performance: ROC-AUC ~0.536 (LightGBM best)
+    - Ready for optimization to achieve ROC-AUC > 0.65
+
+.env.example
+.gitignore
+DELIVERY_REPORT.md
+DELIVERY_REPORT_ENHANCED.md
+FINAL_DELIVERY_SUMMARY.md
+LICENSE
+Makefile
+OPTIMAL_PARAMETERS_ANALYSIS.md
+PERFORMANCE_ANALYSIS.md
+QUICK_START.md
+QUICK_START_ENHANCED.md
+README.md
+README_ENHANCED.md
+SCALING_IMPROVEMENTS_SUMMARY.md
+analyze_data.py
+config/params.yaml
+config/params_enhanced.yaml
+config/params_quick.yaml
+environment.yml
+notebooks/1_data_retrieval.ipynb
+notebooks/2_feature_engineering.ipynb
+notebooks/3_model_training.ipynb
+notebooks/4_visualization.ipynb
+notebooks/visualization_demo.ipynb
+setup.py
+simple_shark_model_results.png
+src/__init__.py
+src/compute_features.py
+src/data_scout.py
+src/fetch_data.py
+src/label_join.py
+src/make_maps.py
+src/make_maps_enhanced.py
+src/predict_grid.py
+src/predict_grid_enhanced.py
+src/simple_shark_model.py
+src/train_model.py
+src/utils.py
+src/validate_data_integrity.py
+src/validate_delivery_enhanced.py
+src/validate_pipeline_enhanced.py
+tests/test_grad_ow.py
+validate_delivery.py
+web/index.html
+web/index_enhanced.html

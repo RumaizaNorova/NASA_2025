@@ -1,0 +1,347 @@
+# AI-Enhanced Makefile for Shark Habitat Prediction
+# This Makefile includes advanced ML techniques, AI analysis, and optimization
+
+.PHONY: help install install-ai install-optimization setup-env clean all-enhanced analyze-data train-ai-enhanced predict-ai-enhanced validate-ai-enhanced report-ai-enhanced
+
+# Default target
+help:
+	@echo "AI-Enhanced Shark Habitat Prediction Pipeline"
+	@echo "=============================================="
+	@echo ""
+	@echo "Available targets:"
+	@echo "  install              - Install basic dependencies"
+	@echo "  install-ai           - Install AI and optimization dependencies"
+	@echo "  setup-env            - Setup environment and configuration"
+	@echo "  analyze-data         - Analyze shark data with AI insights"
+	@echo "  train-ai-enhanced    - Train models with AI enhancement"
+	@echo "  predict-ai-enhanced  - Generate predictions with AI analysis"
+	@echo "  validate-ai-enhanced - Validate AI-enhanced pipeline"
+	@echo "  report-ai-enhanced   - Generate comprehensive AI report"
+	@echo "  all-enhanced         - Run complete AI-enhanced pipeline"
+	@echo "  clean                - Clean generated files"
+	@echo ""
+
+# Installation targets
+install:
+	@echo "Installing basic dependencies..."
+	pip install -r requirements.txt
+
+install-ai:
+	@echo "Installing AI and optimization dependencies..."
+	pip install openai optuna imbalanced-learn
+	pip install shap lime  # For advanced interpretability
+	pip install plotly dash  # For interactive visualizations
+	pip install scikit-optimize  # Alternative optimization
+
+install-optimization:
+	@echo "Installing optimization libraries..."
+	pip install optuna
+	pip install hyperopt
+	pip install scikit-optimize
+	pip install bayesian-optimization
+
+setup-env:
+	@echo "Setting up environment..."
+	@if [ ! -f .env ]; then \
+		echo "Creating .env file from .env.example..."; \
+		cp .env.example .env; \
+		echo "Please update .env with your API keys and credentials"; \
+	fi
+	@echo "Creating necessary directories..."
+	mkdir -p data/raw data/interim data/processed logs web
+	@echo "Environment setup complete!"
+
+# Data analysis with AI insights
+analyze-data:
+	@echo "Analyzing shark data with AI insights..."
+	python src/analyze_shark_data_enhanced.py
+	@echo "Data analysis complete! Check data/interim/ for results."
+
+# AI-enhanced training
+train-ai-enhanced:
+	@echo "Training models with AI enhancement..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --optimize --sampling smote --ensemble
+	@echo "AI-enhanced training complete!"
+
+# AI-enhanced prediction
+predict-ai-enhanced:
+	@echo "Generating predictions with AI analysis..."
+	python src/predict_grid_enhanced.py --config config/params_ai_enhanced.yaml --ai-analysis
+	@echo "AI-enhanced prediction complete!"
+
+# AI-enhanced validation
+validate-ai-enhanced:
+	@echo "Validating AI-enhanced pipeline..."
+	python src/validate_pipeline_enhanced.py --config config/params_ai_enhanced.yaml
+	@echo "AI-enhanced validation complete!"
+
+# Generate comprehensive AI report
+report-ai-enhanced:
+	@echo "Generating comprehensive AI report..."
+	python -c "from src.ai_analysis import AIAnalysisEngine; engine = AIAnalysisEngine(); engine.generate_comprehensive_report()"
+	@echo "AI report generation complete!"
+
+# Complete AI-enhanced pipeline
+all-enhanced: setup-env analyze-data train-ai-enhanced predict-ai-enhanced validate-ai-enhanced report-ai-enhanced
+	@echo "=========================================="
+	@echo "AI-Enhanced Pipeline Complete!"
+	@echo "=========================================="
+	@echo ""
+	@echo "Generated files:"
+	@echo "  - data/interim/ai_enhanced_training_metrics.json"
+	@echo "  - data/interim/ai_enhanced_feature_importance.json"
+	@echo "  - data/interim/optimization_results.json"
+	@echo "  - data/interim/ai_analysis_report.md"
+	@echo "  - data/interim/shark_data_analysis_report.md"
+	@echo "  - data/interim/expanded_training_data.csv"
+	@echo ""
+	@echo "Models trained:"
+	@echo "  - xgboost_model_ai_enhanced.pkl"
+	@echo "  - lightgbm_model_ai_enhanced.pkl"
+	@echo "  - random_forest_model_ai_enhanced.pkl"
+	@echo "  - ensemble_model_ai_enhanced.pkl"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Review AI analysis reports"
+	@echo "  2. Implement recommended improvements"
+	@echo "  3. Deploy to cloud for scaling"
+	@echo ""
+
+# Quick training (without optimization for testing)
+train-quick:
+	@echo "Quick training without optimization..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --sampling smote
+	@echo "Quick training complete!"
+
+# Training with specific algorithms
+train-xgb:
+	@echo "Training XGBoost with AI enhancement..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --algorithms xgboost --optimize
+
+train-lightgbm:
+	@echo "Training LightGBM with AI enhancement..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --algorithms lightgbm --optimize
+
+train-rf:
+	@echo "Training Random Forest with AI enhancement..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --algorithms random_forest --optimize
+
+# Training with different sampling strategies
+train-smote:
+	@echo "Training with SMOTE sampling..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --sampling smote --optimize
+
+train-adasyn:
+	@echo "Training with ADASYN sampling..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --sampling adasyn --optimize
+
+train-no-sampling:
+	@echo "Training without sampling..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --sampling none --optimize
+
+# Ensemble training
+train-ensemble:
+	@echo "Training ensemble model..."
+	python src/train_model_ai_enhanced.py --config config/params_ai_enhanced.yaml --ensemble --optimize
+
+# Performance comparison
+compare-models:
+	@echo "Comparing model performance..."
+	python -c "
+import json
+import pandas as pd
+from pathlib import Path
+
+# Load metrics
+metrics_file = Path('data/interim/ai_enhanced_training_metrics.json')
+if metrics_file.exists():
+    with open(metrics_file) as f:
+        metrics = json.load(f)
+    
+    print('Model Performance Comparison:')
+    print('=' * 40)
+    for model, results in metrics.items():
+        if 'aggregated_metrics' in results:
+            agg_metrics = results['aggregated_metrics']
+            print(f'{model.upper()}:')
+            print(f'  ROC-AUC: {agg_metrics.get(\"roc_auc\", \"N/A\"):.3f}')
+            print(f'  PR-AUC:  {agg_metrics.get(\"pr_auc\", \"N/A\"):.3f}')
+            print(f'  TSS:     {agg_metrics.get(\"tss\", \"N/A\"):.3f}')
+            print(f'  F1:      {agg_metrics.get(\"f1\", \"N/A\"):.3f}')
+            print()
+else:
+    print('No metrics file found. Run training first.')
+"
+
+# Clean up generated files
+clean:
+	@echo "Cleaning generated files..."
+	rm -f data/interim/*_ai_enhanced.*
+	rm -f data/interim/ai_analysis_report.md
+	rm -f data/interim/shark_data_analysis_report.md
+	rm -f data/interim/expanded_training_data.csv
+	rm -f data/interim/optimization_results.json
+	rm -f logs/ai_enhanced_training.log
+	@echo "Cleanup complete!"
+
+# Development and testing targets
+test-ai-integration:
+	@echo "Testing AI integration..."
+	python -c "from src.ai_analysis import AIAnalysisEngine; engine = AIAnalysisEngine(); print('AI integration test passed!')"
+
+test-optimization:
+	@echo "Testing optimization libraries..."
+	python -c "import optuna; import imblearn; print('Optimization libraries available!')"
+
+test-data-analysis:
+	@echo "Testing data analysis..."
+	python -c "from src.analyze_shark_data_enhanced import SharkDataAnalyzer; analyzer = SharkDataAnalyzer(); print('Data analysis test passed!')"
+
+# Documentation targets
+docs:
+	@echo "Generating documentation..."
+	@echo "# AI-Enhanced Shark Habitat Prediction" > README_AI_ENHANCED.md
+	@echo "" >> README_AI_ENHANCED.md
+	@echo "This enhanced version includes:" >> README_AI_ENHANCED.md
+	@echo "- OpenAI integration for AI-powered insights" >> README_AI_ENHANCED.md
+	@echo "- Optuna hyperparameter optimization" >> README_AI_ENHANCED.md
+	@echo "- Advanced sampling strategies (SMOTE, ADASYN)" >> README_AI_ENHANCED.md
+	@echo "- Ensemble methods" >> README_AI_ENHANCED.md
+	@echo "- Comprehensive data analysis" >> README_AI_ENHANCED.md
+	@echo "- Automated reporting" >> README_AI_ENHANCED.md
+	@echo "" >> README_AI_ENHANCED.md
+	@echo "## Quick Start" >> README_AI_ENHANCED.md
+	@echo "" >> README_AI_ENHANCED.md
+	@echo "\`\`\`bash" >> README_AI_ENHANCED.md
+	@echo "make install-ai" >> README_AI_ENHANCED.md
+	@echo "make all-enhanced" >> README_AI_ENHANCED.md
+	@echo "\`\`\`" >> README_AI_ENHANCED.md
+	@echo "Documentation generated: README_AI_ENHANCED.md"
+
+# Monitoring and debugging
+monitor-performance:
+	@echo "Monitoring model performance..."
+	@if [ -f data/interim/ai_enhanced_training_metrics.json ]; then \
+		python -c "
+import json
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Load metrics
+with open('data/interim/ai_enhanced_training_metrics.json') as f:
+    metrics = json.load(f)
+
+# Create performance comparison
+models = []
+roc_aucs = []
+pr_aucs = []
+
+for model, results in metrics.items():
+    if 'aggregated_metrics' in results:
+        agg_metrics = results['aggregated_metrics']
+        models.append(model)
+        roc_aucs.append(agg_metrics.get('roc_auc', 0))
+        pr_aucs.append(agg_metrics.get('pr_auc', 0))
+
+# Create plot
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+ax1.bar(models, roc_aucs)
+ax1.set_title('ROC-AUC Comparison')
+ax1.set_ylabel('ROC-AUC')
+ax1.set_ylim(0, 1)
+
+ax2.bar(models, pr_aucs)
+ax2.set_title('PR-AUC Comparison')
+ax2.set_ylabel('PR-AUC')
+ax2.set_ylim(0, 1)
+
+plt.tight_layout()
+plt.savefig('data/interim/ai_enhanced_performance_comparison.png', dpi=150, bbox_inches='tight')
+plt.close()
+
+print('Performance comparison plot saved!')
+"; \
+	else \
+		echo "No metrics file found. Run training first."; \
+	fi
+
+# Cloud deployment preparation
+prepare-cloud:
+	@echo "Preparing for cloud deployment..."
+	@echo "Creating cloud deployment package..."
+	mkdir -p cloud_deployment
+	cp -r src cloud_deployment/
+	cp -r config cloud_deployment/
+	cp -r data cloud_deployment/
+	cp requirements.txt cloud_deployment/
+	cp .env.example cloud_deployment/
+	@echo "Cloud deployment package created in cloud_deployment/"
+
+# Performance benchmarking
+benchmark:
+	@echo "Running performance benchmarks..."
+	python -c "
+import time
+import psutil
+import os
+
+# Monitor system resources
+def get_system_info():
+    cpu_percent = psutil.cpu_percent(interval=1)
+    memory = psutil.virtual_memory()
+    return {
+        'cpu_percent': cpu_percent,
+        'memory_percent': memory.percent,
+        'memory_available_gb': memory.available / (1024**3)
+    }
+
+print('System Resources:')
+info = get_system_info()
+print(f'  CPU Usage: {info[\"cpu_percent\"]}%')
+print(f'  Memory Usage: {info[\"memory_percent\"]}%')
+print(f'  Available Memory: {info[\"memory_available_gb\"]:.2f} GB')
+
+# Check file sizes
+data_dir = 'data/interim'
+if os.path.exists(data_dir):
+    total_size = 0
+    for root, dirs, files in os.walk(data_dir):
+        for file in files:
+            file_path = os.path.join(root, file)
+            total_size += os.path.getsize(file_path)
+    
+    print(f'  Data Directory Size: {total_size / (1024**2):.2f} MB')
+"
+
+# Status check
+status:
+	@echo "Checking pipeline status..."
+	@echo "Files present:"
+	@ls -la data/interim/ 2>/dev/null || echo "  No interim data directory"
+	@echo ""
+	@echo "Models trained:"
+	@ls -la data/interim/*_model_ai_enhanced.pkl 2>/dev/null || echo "  No AI-enhanced models found"
+	@echo ""
+	@echo "Reports generated:"
+	@ls -la data/interim/*report*.md 2>/dev/null || echo "  No reports found"
+
+# Help for specific targets
+help-optimization:
+	@echo "Optimization Options:"
+	@echo "  train-xgb        - Train XGBoost with optimization"
+	@echo "  train-lightgbm   - Train LightGBM with optimization"
+	@echo "  train-rf         - Train Random Forest with optimization"
+	@echo "  compare-models   - Compare model performance"
+
+help-sampling:
+	@echo "Sampling Options:"
+	@echo "  train-smote      - Train with SMOTE sampling"
+	@echo "  train-adasyn     - Train with ADASYN sampling"
+	@echo "  train-no-sampling - Train without sampling"
+
+help-analysis:
+	@echo "Analysis Options:"
+	@echo "  analyze-data     - Analyze shark data with AI insights"
+	@echo "  report-ai-enhanced - Generate comprehensive AI report"
+	@echo "  monitor-performance - Monitor model performance"
